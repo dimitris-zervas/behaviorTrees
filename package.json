@@ -1,0 +1,35 @@
+{
+  "name": "behaviortrees",
+  "version": "1.0.0",
+  "description": "A simple library to implement behavior trees.",
+  "main": "dist/index.js",
+  "types": "dist/index",
+  "scripts": {
+    "build": "./node_modules/.bin/tsc -d -p tsconfig.build.json && tsconfig-replace-paths -p tsconfig.json -s ./src -o ./dist",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dimitris-zervas/behaviorTrees.git"
+  },
+  "keywords": [
+    "BehaviorTrees",
+    "behavior",
+    "bt",
+    "bht"
+  ],
+  "author": "Dimitris Zervas",
+  "license": "MIT License",
+  "bugs": {
+    "url": "https://github.com/dimitris-zervas/behaviorTrees/issues"
+  },
+  "homepage": "https://github.com/dimitris-zervas/behaviorTrees#readme",
+  "devDependencies": {
+    "tsconfig-replace-paths": "^0.0.14",
+    "typescript": "^5.0.2"
+  },
+  "dependencies": {
+    "@types/uuid": "^9.0.1",
+    "uuid": "^9.0.0"
+  }
+}
