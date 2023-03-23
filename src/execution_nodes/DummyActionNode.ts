@@ -14,7 +14,6 @@ export class DummyActionNode extends ActionBaseNode {
   public async tick(): Promise<NodeStatus> {
     // console.log("tick on Node ID", this.id);
     if (this.status === NodeStatus.Ready) {
-      console.log("NodeId", this.nodeId, "is running...")
       this.status = NodeStatus.Running;
       this.execute();
     }
@@ -25,7 +24,7 @@ export class DummyActionNode extends ActionBaseNode {
   public execute(): void {
       setTimeout(() => {
         this.status = NodeStatus.Success;
-        if (this.nodeId === "node 1" || this.nodeId === "node 2" || this.nodeId === "node 3") {
+        if (this.nodeId === "node 1") {
           this.status = NodeStatus.Failure;
         }
       }, this.duration);

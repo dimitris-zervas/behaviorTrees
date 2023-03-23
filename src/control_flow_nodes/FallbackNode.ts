@@ -4,12 +4,14 @@ import { ActionBaseNode } from '@execution_nodes';
 
 export class FallbackNode extends ControlBaseNode {
   private children: ControlBaseNode[] | ActionBaseNode[];
+  private activeNodeIdx: number;
 
   constructor(children: ControlBaseNode[]) {
     super();
 
     this.children = children;
     this.status = NodeStatus.Ready;
+    this.activeNodeIdx = 0;
 
   }
 
@@ -19,34 +21,40 @@ export class FallbackNode extends ControlBaseNode {
     }
   
     return new Promise(async (resolve, reject) => {
-      let hasSucceededChild = false;
-      let activeNode: string = this.children[0].nodeId;
+      if (this.status === NodeStatus.Success) {
+        reject(new Error("You are trying to tick a SequenceNode that has already returned SUCCESS"));
+        // TODO: Add here a typed error.
+      }
       
-      // Process children in sequence until one returns SUCCESS or all have returned FAILURE
-      for (const child of this.children) {
-        const childStatus = await child.tick();
-        if (childStatus === NodeStatus.Running) {
-          activeNode = child.nodeId;
-          console.log("Running node: ", activeNode);
+      // TODO: Change that when you have a proper logger
+      console.log("Fallback Active Node", this.activeNodeIdx);
+
+      // Tick the activeNode
+      const childStatus = await this.children[this.activeNodeIdx].tick();
+      
+      switch (childStatus) {
+        case NodeStatus.Running:
+          // If a child is RUNNING then the fallback is RUNNING
+          this.status = NodeStatus.Running;
           break;
-        } else if (childStatus === NodeStatus.Success) {
-          hasSucceededChild = true;
+        case NodeStatus.Failure:
+          // If a child fails point to the next node
+          // If this was the last child then the fallback returns FAILURE
+          if (this.activeNodeIdx === this.children.length - 1) {
+            this.status = NodeStatus.Failure;
+          } else {
+            this.activeNodeIdx += 1;
+            this.status = NodeStatus.Running;   // TODO: Is there a chance a -child- node returns directly SUCCESS? 
+          }
           break;
-        }
+        case NodeStatus.Success:
+          // The first child that returns SUCCESS makes the fallback return SUCCESS
+          this.status = NodeStatus.Success;
+          break;
       }
-      
-      // If a child returned SUCCESS, set the overall status to SUCCESS and resolve
-      if (hasSucceededChild) {
-        this.status = NodeStatus.Success;
-        resolve(this.status);
-        return;
-      }
-      
-      // All children returned FAILURE, set the overall status to FAILURE and resolve
-      if (activeNode === this.children[this.children.length - 1].nodeId) {
-        this.status = NodeStatus.Failure;
-        reject(this.status);
-      }
+
+      resolve(this.status);
+
     });
   }
 

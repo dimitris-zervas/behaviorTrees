@@ -4,12 +4,14 @@ import { ActionBaseNode } from '@execution_nodes';
 
 export class SequenceNode extends ControlBaseNode {
   private children: ControlBaseNode[] | ActionBaseNode[];
+  private activeNodeIdx: number;
 
-  constructor(children: ControlBaseNode[]) {
+  constructor(children: ControlBaseNode[] | ActionBaseNode[]) {
     super();
 
     this.children = children;
     this.status = NodeStatus.Ready;
+    this.activeNodeIdx = 0;
 
   }
 
@@ -19,33 +21,38 @@ export class SequenceNode extends ControlBaseNode {
     }
   
     return new Promise(async (resolve, reject) => {
-      let hasRunningChild = false;
-      let activeNode: string = this.children[0].nodeId;
+      if (this.status === NodeStatus.Success) {
+        reject(new Error("You are trying to tick a SequenceNode that has already returned SUCCESS"));
+        // TODO: Add here a typed error.
+      }
+
+      // TODO: Change that when you have a proper logger
+      console.log("Sequence Active Node", this.activeNodeIdx);
       
-      // Process children in sequence until one returns FAILURE or all have returned SUCCESS
-      for (const child of this.children) {
-        const childStatus = await child.tick();
-        if (childStatus === NodeStatus.Running) {
-          hasRunningChild = true;
-          activeNode = child.nodeId;
-          console.log("Running node: ", activeNode);
+      // Tick the activeNode
+      const childStatus = await this.children[this.activeNodeIdx].tick();
+
+      switch (childStatus) {
+        case NodeStatus.Running:
+          // If a child is RUNNING then the sequence is RUNNING
+          this.status = NodeStatus.Running;
           break;
-        } else if (childStatus === NodeStatus.Failure) {
+        case NodeStatus.Failure:
+          // If a child reutn FAILURE then the sequence returns FAILURE
           this.status = NodeStatus.Failure;
-          reject(this.status);
-          return;
-        }
+          break;
+        case NodeStatus.Success:
+          // If a child retun SUCCESS then increment the activeNodeIdx
+          // If the activeNode is the last child then the sequence returns SUCCESS
+          if (this.activeNodeIdx === this.children.length - 1) {
+            this.status = NodeStatus.Success;
+          } else {
+            this.activeNodeIdx += 1;
+            this.status = NodeStatus.Running;   // TODO: Is there a chance a -child- node returns directly SUCCESS? 
+          }
+          break;
       }
-      
-      // If a child returned RUNNING, set the overall status to RUNNING and resolve
-      if (hasRunningChild) {
-        this.status = NodeStatus.Running;
-        resolve(this.status);
-        return;
-      }
-      
-      // All children returned SUCCESS, set the overall status to SUCCESS and resolve
-      this.status = NodeStatus.Success;
+
       resolve(this.status);
     });
   }
