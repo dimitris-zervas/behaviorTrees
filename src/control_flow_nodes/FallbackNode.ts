@@ -6,7 +6,7 @@ export class FallbackNode extends ControlBaseNode {
   private children: ControlBaseNode[] | ActionBaseNode[];
   private activeNodeIdx: number;
 
-  constructor(children: ControlBaseNode[]) {
+  constructor(children: ControlBaseNode[] | ActionBaseNode[]) {
     super();
 
     this.children = children;
