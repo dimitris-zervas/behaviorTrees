@@ -6,7 +6,7 @@ export class FallbackNode extends ControlBaseNode {
   private children: ControlBaseNode[] | ActionBaseNode[];
   private activeNodeIdx: number;
 
-  constructor(children: ControlBaseNode[]) {
+  constructor(children: ControlBaseNode[] | ActionBaseNode[]) {
     super();
 
     this.children = children;
@@ -22,7 +22,7 @@ export class FallbackNode extends ControlBaseNode {
   
     return new Promise(async (resolve, reject) => {
       if (this.status === NodeStatus.Success) {
-        reject(new Error("You are trying to tick a SequenceNode that has already returned SUCCESS"));
+        reject(new Error("You are trying to tick a FallbackNode that has already returned SUCCESS"));
         // TODO: Add here a typed error.
       }
       

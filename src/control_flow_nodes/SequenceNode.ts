@@ -42,7 +42,7 @@ export class SequenceNode extends ControlBaseNode {
           this.status = NodeStatus.Failure;
           break;
         case NodeStatus.Success:
-          // If a child retun SUCCESS then increment the activeNodeIdx
+          // If a child return SUCCESS then increment the activeNodeIdx
           // If the activeNode is the last child then the sequence returns SUCCESS
           if (this.activeNodeIdx === this.children.length - 1) {
             this.status = NodeStatus.Success;

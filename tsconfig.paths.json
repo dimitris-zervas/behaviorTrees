@@ -8,15 +8,6 @@
       "@execution_nodes": [
         "src/execution_nodes"
       ],
-      // "@errors": [
-      //   "src/errors"
-      // ],
-      // "@logger": [
-      //   "src/logger"
-      // ],
-      // "@utils": [
-      //   "src/utils"
-      // ],
       "@types": [
         "src/types"
       ]
