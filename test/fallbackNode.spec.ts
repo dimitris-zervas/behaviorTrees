@@ -86,5 +86,23 @@ describe("Control Flow Nodes | FallbackNode", () => {
     expect(status).toBe(NodeStatus.Failure); // child2 returns success here - fallbackNode returns success
   });
 
+  it("should throw an error if you try to tick a node that has already finished", async () => {
+    // Mock child1 to return SUCCESS
+    jest.spyOn(child1, "tick")
+      .mockResolvedValueOnce(NodeStatus.Running)
+    // Mock child2 to return FAILURE
+    jest.spyOn(child2, "tick")
+      .mockResolvedValueOnce(NodeStatus.Failure);
+
+    let status = await fallbackNode.tick();
+    expect(status).toBe(NodeStatus.Running);
+    
+    status = await fallbackNode.tick();
+    expect(status).toBe(NodeStatus.Success);
+
+    await fallbackNode.tick().catch(err => {
+      expect(err.message).toEqual("You are trying to tick a FallbackNode that has already returned SUCCESS");
+    });
+  });
 
 });
