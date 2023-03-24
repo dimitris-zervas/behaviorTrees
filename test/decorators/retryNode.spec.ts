@@ -1,25 +1,20 @@
 import { RetryNode } from '@control_flow_nodes';
 import { ActionBaseNode } from '@execution_nodes';
 import { NodeStatus } from '@types';
+import { MockActionNode } from '../utils';
 
-// Mock ActionBaseNode
-class MockActionNode extends ActionBaseNode {
-  public async tick(): Promise<NodeStatus> {
-    return NodeStatus.Success;
-  }
 
-  public execute() {
-    return;
-  }
-}
-
+let child: ActionBaseNode;
+let retryNode: RetryNode;
 const maxRetries = 2;
 
 describe("Control Flow Nodes | Decorators | RetryNode", () => {
-  it("should return RUNNING if the child returns RUNNING", async () => {
-    const child = new MockActionNode();
-    const retryNode = new RetryNode(child, maxRetries);
+  beforeEach(() => {
+    child = new MockActionNode();
+    retryNode = new RetryNode(child, maxRetries);
+  });
 
+  it("should return RUNNING if the child returns RUNNING", async () => {
     // Mock child to return RUNNING
     jest.spyOn(child, "tick").mockResolvedValueOnce(NodeStatus.Running);
 
@@ -28,9 +23,6 @@ describe("Control Flow Nodes | Decorators | RetryNode", () => {
   });
 
   it("should return SUCCESS if the child returns SUCCESS", async () => {
-    const child = new MockActionNode();
-    const retryNode = new RetryNode(child, maxRetries);
-
     // Mock child to return FAILURE
     jest.spyOn(child, "tick").mockResolvedValueOnce(NodeStatus.Success);
 
@@ -39,9 +31,6 @@ describe("Control Flow Nodes | Decorators | RetryNode", () => {
   });
 
   it("should return RUNNING if the child returns FAILURES and maxRetries is not reached", async () => {
-    const child = new MockActionNode();
-    const retryNode = new RetryNode(child, maxRetries);
-
     // Mock child to return SUCCESS
     jest.spyOn(child, "tick").mockResolvedValueOnce(NodeStatus.Failure);
 
@@ -49,18 +38,34 @@ describe("Control Flow Nodes | Decorators | RetryNode", () => {
     expect(status).toBe(NodeStatus.Running);
   });
 
+  it("should throw an error if you try to tick a node that has already finished", async () => {
+    // Mock child to return SUCCESS
+    jest.spyOn(child, "tick").mockResolvedValueOnce(NodeStatus.Success);
+
+    let status = await retryNode.tick();
+    expect(status).toBe(NodeStatus.Success);
+
+    await retryNode.tick().catch(err => {
+      expect(err.message).toBe("You are trying to tick a RetryNode that has already returned SUCCESS/FAILURE");
+    });
+  });
+
+  it("should return FAILURE if the child returns FAILURES and maxRetries is reached", async () => {
+    // Mock child to return SUCCESS
+    jest.spyOn(child, "tick")
+      .mockResolvedValueOnce(NodeStatus.Failure)
+      .mockResolvedValueOnce(NodeStatus.Failure)
+      .mockResolvedValueOnce(NodeStatus.Failure);
+
+    let status = await retryNode.tick();
+    expect(status).toBe(NodeStatus.Running);
+
+    status = await retryNode.tick();
+    expect(status).toBe(NodeStatus.Running);
+
+    status = await retryNode.tick();
+    expect(status).toBe(NodeStatus.Failure);
+  });
+
 
 });
-
-const required = {
-  calendar: {
-    availableSteps: [
-      "Step1Id", "Step2Id", "Step3Id", "Step4Id"
-    ]
-  },
-  user: {
-    availableSteps: [
-      "Step1Id", "Step2Id", "Step3Id",
-    ]
-  }
-}
