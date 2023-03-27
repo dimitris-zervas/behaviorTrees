@@ -74,6 +74,13 @@ export class ReactiveSequenceNode extends ControlBaseNode {
     });
   }
 
+  public async halt(): Promise<any> {
+    console.log("------- HALT -------");
+    // TODO: Hault the running node!
+    this.status = NodeStatus.Ready;
+    return this.status;
+  }
+
   // private async haultRunningNode(children: ControlBaseNode[] | ActionBaseNode[]): Promise<void> {
   //   for (const child of children) {
   //     // await child.hault();

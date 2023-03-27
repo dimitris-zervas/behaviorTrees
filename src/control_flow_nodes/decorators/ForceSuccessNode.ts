@@ -17,10 +17,6 @@ export class ForceSuccessNode extends ControlBaseNode {
   }
 
   public async tick(): Promise<NodeStatus> {
-    if (this.status === NodeStatus.Success || this.status === NodeStatus.Failure) {
-      throw new Error("You are trying to tick a ForceSuccessNode that has already returned SUCCESS/FAILURE");
-      // TODO: Add here a typed error.
-    }
 
     // Tick the child
     const childStatus = await this.child.tick();
@@ -39,5 +35,12 @@ export class ForceSuccessNode extends ControlBaseNode {
     
     return this.status;
 
+  }
+
+  public async halt(): Promise<any> {
+    await this.child.halt();
+    // TODO: More checks here to ensure child's halt?
+    this.status = NodeStatus.Ready;
+    return this.status;
   }
 }

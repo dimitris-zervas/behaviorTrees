@@ -57,4 +57,11 @@ export class SequenceNode extends ControlBaseNode {
     });
   }
 
+  public async halt(): Promise<any> {
+    console.log("------- HALT -------");
+    // TODO: Hault the running nodes!
+    this.status = NodeStatus.Ready;
+    return this.status;
+  }
+
 }

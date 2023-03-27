@@ -13,10 +13,6 @@ export class InverterNode extends ControlBaseNode {
   }
 
   public async tick(): Promise<NodeStatus> {
-    if (this.status === NodeStatus.Success) {
-      throw new Error("You are trying to tick a InverterNode that has already returned SUCCESS");
-      // TODO: Add here a typed error.
-    }
 
     // Tick the child
     const childStatus = await this.child.tick();
@@ -35,6 +31,13 @@ export class InverterNode extends ControlBaseNode {
         break;
     }
 
+    return this.status;
+  }
+
+  public async halt(): Promise<any> {
+    await this.child.halt();
+    // TODO: More checks here to ensure child's halt?
+    this.status = NodeStatus.Ready;
     return this.status;
   }
 }

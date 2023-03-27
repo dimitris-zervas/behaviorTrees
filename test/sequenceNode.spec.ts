@@ -111,4 +111,16 @@ describe("Control Flow Nodes | SequenceNode", () => {
     });
   });
 
+  it("should return READY when the node is halted", async () => {
+    // Mock child1 to return SUCCESS
+    jest.spyOn(child1, "tick").mockResolvedValueOnce(NodeStatus.Running);
+
+    let status = await sequenceNode.tick();
+    expect(status).toBe(NodeStatus.Running);
+
+    status = await sequenceNode.halt();
+    expect(status).toBe(NodeStatus.Ready);
+      
+  });
+
 });
