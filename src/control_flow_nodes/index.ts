@@ -1,5 +1,6 @@
 export * from './ControlBaseNode';
 export * from './SequenceNode';
+export * from './ReactiveSequenceNode';
 export * from './FallbackNode';
 export * from './decorators/ForceFailureNode';
 export * from './decorators/ForceSuccessNode';
