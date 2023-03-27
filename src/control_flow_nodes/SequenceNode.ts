@@ -1,12 +1,11 @@
 import { ControlBaseNode } from './ControlBaseNode';
-import { NodeStatus } from '../types/nodes';
-import { ActionBaseNode } from '@execution_nodes';
+import { NodeStatus, Node } from '../types/nodes';
 
 export class SequenceNode extends ControlBaseNode {
-  private children: ControlBaseNode[] | ActionBaseNode[];
+  private children: Node[];
   private activeNodeIdx: number;
 
-  constructor(children: ControlBaseNode[] | ActionBaseNode[]) {
+  constructor(children: Node[]) {
     super();
 
     this.children = children;

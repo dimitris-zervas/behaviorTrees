@@ -8,6 +8,9 @@
       "@execution_nodes": [
         "src/execution_nodes"
       ],
+      "@Blackboard": [
+        "src/Blackboard"
+      ],
       "@types": [
         "src/types"
       ]

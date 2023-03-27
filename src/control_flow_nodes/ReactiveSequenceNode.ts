@@ -1,13 +1,12 @@
 import { ControlBaseNode } from '@control_flow_nodes';
-import { ActionBaseNode } from '@execution_nodes';
-import { NodeStatus } from '@types';
+import { NodeStatus, Node } from '@types';
 
 export class ReactiveSequenceNode extends ControlBaseNode {
-  private children: ControlBaseNode[] | ActionBaseNode[];
+  private children: Node[];
   private hasRunningChild: boolean = false;
   private runningNode: number;
   
-  constructor(children: ControlBaseNode[] | ActionBaseNode[]) {
+  constructor(children: Node[]) {
     super();
     this.children = children;
     this.runningNode = 0;
