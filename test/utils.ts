@@ -10,4 +10,8 @@ export class MockActionNode extends ActionBaseNode {
   public execute() {
     return;
   }
+  
+  public async halt() {
+    return;
+  }
 }

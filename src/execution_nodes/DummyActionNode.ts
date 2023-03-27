@@ -31,4 +31,9 @@ export class DummyActionNode extends ActionBaseNode {
 
       // return;
   }
+
+  public async halt(): Promise<any> {
+    this.status = NodeStatus.Ready;
+    return;
+  }
 }

@@ -38,18 +38,6 @@ describe("Control Flow Nodes | Decorators | RetryNode", () => {
     expect(status).toBe(NodeStatus.Running);
   });
 
-  it("should throw an error if you try to tick a node that has already finished", async () => {
-    // Mock child to return SUCCESS
-    jest.spyOn(child, "tick").mockResolvedValueOnce(NodeStatus.Success);
-
-    let status = await retryNode.tick();
-    expect(status).toBe(NodeStatus.Success);
-
-    await retryNode.tick().catch(err => {
-      expect(err.message).toBe("You are trying to tick a RetryNode that has already returned SUCCESS/FAILURE");
-    });
-  });
-
   it("should return FAILURE if the child returns FAILURES and maxRetries is reached", async () => {
     // Mock child to return SUCCESS
     jest.spyOn(child, "tick")
@@ -65,6 +53,17 @@ describe("Control Flow Nodes | Decorators | RetryNode", () => {
 
     status = await retryNode.tick();
     expect(status).toBe(NodeStatus.Failure);
+  });
+
+  it("should halt the child node when halted", async () => {
+    // Mock child to return SUCCESS
+    jest.spyOn(child, "tick").mockResolvedValueOnce(NodeStatus.Running);
+
+    let status = await retryNode.tick();
+    expect(status).toBe(NodeStatus.Running);
+
+    status = await retryNode.halt();
+    expect(status).toBe(NodeStatus.Ready);
   });
 
 

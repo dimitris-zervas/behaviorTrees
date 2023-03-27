@@ -9,6 +9,8 @@ export abstract class ActionBaseNode {
 
   public abstract execute(): any;
 
+  public abstract halt(): Promise<any>;
+
   constructor(id?: string) {
     this.status = NodeStatus.Ready;
   }

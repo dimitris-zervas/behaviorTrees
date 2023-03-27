@@ -1,17 +1,7 @@
 import { ForceFailureNode } from '@control_flow_nodes';
-import { ActionBaseNode } from '@execution_nodes';
 import { NodeStatus } from '@types';
+import { MockActionNode } from '../utils';
 
-// Mock ActionBaseNode
-class MockActionNode extends ActionBaseNode {
-  public async tick(): Promise<NodeStatus> {
-    return NodeStatus.Success;
-  }
-
-  public execute() {
-    return;
-  }
-}
 
 describe("Control Flow Nodes | Decorators | ForceFailureNode", () => {
   it("should return RUNNING if the child returns RUNNING", async () => {
@@ -47,17 +37,11 @@ describe("Control Flow Nodes | Decorators | ForceFailureNode", () => {
     expect(status).toBe(NodeStatus.Failure);
   });
 
-  it("should throw an error if the parent node has already returned SUCCESS", async () => {
+  it("should return READY when the node is halted", async () => {
     const child = new MockActionNode();
     const forceFailureNode = new ForceFailureNode(child);
 
-    // Mock child to return SUCCESS
-    jest.spyOn(child, "tick").mockResolvedValueOnce(NodeStatus.Success);
-
-    await forceFailureNode.tick();  // This will make forceFailureNode.status = NodeStatus.Failure
-
-    expect(async () => {
-      await forceFailureNode.tick();
-    }).rejects.toThrowError("You are trying to tick a ForceFailureNode that has already returned FAILURE");
+    const status = await forceFailureNode.halt();
+    expect(status).toBe(NodeStatus.Ready);
   });
 });

@@ -58,4 +58,11 @@ export class FallbackNode extends ControlBaseNode {
     });
   }
 
+  public async halt(): Promise<any> {
+    console.log("------- HALT -------");
+    // Hault the running node!
+    this.status = NodeStatus.Ready;
+    return this.status;
+  }
+
 }

@@ -6,9 +6,11 @@ export abstract class ControlBaseNode {
   public nodeId: string = uuid();
   
   public abstract tick(): Promise<NodeStatus>;
+  public abstract halt(): Promise<any>;
   
   constructor(id?: string) {
     this.status = NodeStatus.Ready;
   }
+  
 
 }

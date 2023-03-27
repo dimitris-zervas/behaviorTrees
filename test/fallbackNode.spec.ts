@@ -1,17 +1,8 @@
 import { ControlBaseNode, FallbackNode } from '@control_flow_nodes';
 import { ActionBaseNode } from '@execution_nodes';
 import { NodeStatus } from '@types';
+import { MockActionNode } from './utils';
 
-// Mock ActionBaseNode
-class MockActionNode extends ActionBaseNode {
-  public async tick(): Promise<NodeStatus> {
-    return NodeStatus.Success;
-  }
-
-  public execute() {
-    return;
-  }
-}
 
 let child1: ActionBaseNode;
 let child2: ActionBaseNode;
@@ -103,6 +94,17 @@ describe("Control Flow Nodes | FallbackNode", () => {
     await fallbackNode.tick().catch(err => {
       expect(err.message).toEqual("You are trying to tick a FallbackNode that has already returned SUCCESS");
     });
+  });
+
+  it("should return READY if you halt the node", async () => {
+    // Mock child1 to return RUNNING
+    jest.spyOn(child1, "tick").mockResolvedValueOnce(NodeStatus.Running);
+
+    let status = await fallbackNode.tick();
+    expect(status).toBe(NodeStatus.Running);
+    
+    status = await fallbackNode.halt();
+    expect(status).toBe(NodeStatus.Ready);
   });
 
 });

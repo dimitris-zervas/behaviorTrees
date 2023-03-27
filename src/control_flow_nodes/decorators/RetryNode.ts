@@ -17,10 +17,6 @@ export class RetryNode extends ControlBaseNode {
   }
 
   public async tick(): Promise<NodeStatus> {
-    if (this.status === NodeStatus.Success) {
-      throw new Error("You are trying to tick a RetryNode that has already returned SUCCESS/FAILURE");
-      // TODO: Add here a typed error.
-    }
 
     // Tick the child
     const childStatus = await this.child.tick();
@@ -41,6 +37,12 @@ export class RetryNode extends ControlBaseNode {
         break;
     }
 
+    return this.status;
+  }
+
+  public async halt(): Promise<any> {
+    await this.child.halt();
+    this.status = NodeStatus.Ready;
     return this.status;
   }
 }
